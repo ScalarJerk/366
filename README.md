@@ -69,3 +69,44 @@ Subject Information:
 The dataset is designed to be used for assessing the performance of patients during simple rehabilitation movements and comparing them with a control group of healthy individuals.
 
 ---
+Example: 
+Certainly! I'll break down this record for you, explaining each component:
+
+1. 51615 - This appears to be a frame number or timestamp.
+2. 3 - This might be related to the gesture type or some other identifier.
+3. 6632 - This could be another identifier or metadata.
+
+The rest of the record contains data for each of the 25 joints. Each joint's data is enclosed in parentheses and follows this structure:
+(JointName, TrackingState, X, Y, Z, ScreenX, ScreenY)
+
+Let's break down the data for the first few joints:
+
+4. SpineBase: 
+   - Tracked (tracking state)
+   - 0.1407465 (X coordinate)
+   - -0.01618211 (Y coordinate)
+   - 2.642958 (Z coordinate)
+   - 277.981 (Screen X coordinate)
+   - 209.2025 (Screen Y coordinate)
+
+5. SpineMid: 
+   - Tracked
+   - 0.1439389, 0.3106374, 2.622563
+   - 278.6025, 163.4418
+
+6. Neck:
+   - Tracked
+   - 0.1460119, 0.6271127, 2.589385
+   - 279.2148, 117.7276
+
+7. Head:
+   - Tracked
+   - 0.1527646, 0.7744268, 2.579439
+   - 280.2905, 96.18451
+
+This pattern continues for all 25 joints in the order specified in the paper:
+SpineBase, SpineMid, Neck, Head, ShoulderLeft, ElbowLeft, WristLeft, HandLeft, ShoulderRight, ElbowRight, WristRight, HandRight, HipLeft, KneeLeft, AnkleLeft, FootLeft, HipRight, KneeRight, AnkleRight, FootRight, SpineShoulder, HandTipLeft, ThumbLeft, HandTipRight, ThumbRight.
+
+The X, Y, Z coordinates represent the 3D position of the joint in the Kinect's coordinate system, while the ScreenX and ScreenY values likely represent the 2D projection of the joint onto the camera's view plane.
+
+This format provides more detailed information than the simplified CSV format mentioned in the paper, including tracking state and screen coordinates for each joint.
