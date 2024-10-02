@@ -70,13 +70,7 @@ The dataset is designed to be used for assessing the performance of patients dur
 
 ---
 Example: 
-Certainly! I'll break down this record for you, explaining each component:
-
-1. 51615 - This appears to be a frame number or timestamp.
-2. 3 - This might be related to the gesture type or some other identifier.
-3. 6632 - This could be another identifier or metadata.
-
-The rest of the record contains data for each of the 25 joints. Each joint's data is enclosed in parentheses and follows this structure:
+The record contains data for each of the 25 joints. Each joint's data is enclosed in parentheses and follows this structure:
 (JointName, TrackingState, X, Y, Z, ScreenX, ScreenY)
 
 Let's break down the data for the first few joints:
