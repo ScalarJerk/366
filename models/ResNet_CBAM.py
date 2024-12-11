@@ -4,56 +4,8 @@ import torch.nn.functional as F
 from torchvision import models
 import cv2
 import numpy as np
+from models.CBAM import CBAM
 
-class ChannelAttention(nn.Module):
-    def __init__(self, channels=2048, reduction=16):
-        super(ChannelAttention, self).__init__()
-        self.channels = channels
-        self.reduction = reduction
-        #print(f"Channels: {self.channels}, Reduction: {self.reduction}")
-
-        self.linear = nn.Sequential(
-            nn.Linear(in_features=self.channels, out_features=self.channels//self.reduction, bias=True),
-            nn.ReLU(inplace=True),
-            nn.Linear(in_features=self.channels//self.reduction, out_features=self.channels, bias=True))
-
-    def forward(self, x):
-        max_pool = F.adaptive_max_pool2d(x, output_size=1)
-        avg_pool = F.adaptive_avg_pool2d(x, output_size=1)
-        b, c, _, _ = x.size()
-        linear_max = self.linear(max_pool.view(b,c)).view(b, c, 1, 1)
-        linear_avg = self.linear(avg_pool.view(b,c)).view(b, c, 1, 1)
-        output = linear_max + linear_avg
-        output = F.sigmoid(output) * x
-        return output
-
-class SpatialAttention(nn.Module):
-    def __init__(self):
-        super(SpatialAttention, self).__init__()
-        self.conv1 = nn.Conv2d(2, 1, kernel_size=7, padding=3, bias=False)
-
-    def forward(self, x):
-        # Channel-wise max and average
-        avg_pool = torch.mean(x, dim=1, keepdim=True)
-        max_pool, _ = torch.max(x, dim=1, keepdim=True)
-        
-        # Concatenate along the channel axis
-        concat = torch.cat([avg_pool, max_pool], dim=1)
-        
-        # Spatial attention
-        out = torch.sigmoid(self.conv1(concat))
-        return out * x  # Apply attention
-
-class CBAM(nn.Module):
-    def __init__(self, channels, reduction):
-        super(CBAM, self).__init__()
-        self.channel_attention = ChannelAttention(channels, reduction)
-        self.spatial_attention = SpatialAttention()
-
-    def forward(self, x):
-        x = self.channel_attention(x)
-        x = self.spatial_attention(x)
-        return x
 
 # --- Define ResNet Feature Extractor ---
 class ResNetFeatureExtractor(nn.Module):
@@ -68,6 +20,20 @@ class ResNetFeatureExtractor(nn.Module):
         x = self.resnet(x)  # Output shape will be (batch_size, c, h, w)
         return x
 
+class CBAMClassifier(nn.Module):
+    def __init__(self, num_classes, pretrained=True):
+        super(CBAMClassifier, self).__init__()
+        self.feature_extractor = ResNetFeatureExtractor(pretrained)
+        self.cbam = CBAM(channels=2048, reduction=16)
+        self.fc = nn.Linear(2048, num_classes)
+
+    def forward(self, x):
+        x = self.feature_extractor(x)
+        x = self.cbam(x)
+        x = nn.AdaptiveAvgPool2d((1, 1))(x).view(x.size(0), -1)
+        return self.fc(x)
+    
+'''
 # --- Function to Apply CBAM on Features ---
 def apply_cbam_to_features(features):
     channels = features.size(1) #gets no. of channels
@@ -114,7 +80,8 @@ def extract_and_enhance_features(image_path):
     print("Final feature vector shape after CBAM:", feature_vector.shape)
     return feature_vector
 
-image_path = '/home/sakshi/Desktop/366/DepthImages2-3/215_18_0_1_1_stand/8028/8028.png' 
+image_path = '/Users/sakshiarjun/Desktop/366/DepthImages2-3/215_18_0_1_1_stand/8028/8028.png'
 final_feature_vector = extract_and_enhance_features(image_path)
 
 print("Final feature vector (after CBAM):", final_feature_vector)
+'''
